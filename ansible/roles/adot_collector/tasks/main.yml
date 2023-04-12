@@ -1,0 +1,24 @@
+# Installing and running the ADOT Otel Collector
+# https://aws-otel.github.io/docs/setup/permissions
+# https://github.com/aws-observability/aws-otel-collector/blob/main/docs/developers/debian-deb-demo.md
+- name: retrive binary
+  become: true
+  become_user: isucon
+  ansible.builtin.get_url:
+    url: https://aws-otel-collector.s3.amazonaws.com/ubuntu/amd64/latest/aws-otel-collector.deb
+    dest: /home/isucon/.cache/aws-otel-collector.deb
+
+- name: Install a .deb package
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    deb: /home/isucon/.cache/aws-otel-collector.deb
+
+- name: systemd start, enable aws-otel-collector
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: aws-otel-collector
+    state: started
+    enabled: yes
+    daemon_reload: yes

@@ -1,0 +1,8 @@
+webapps:
+  hosts:
+    webapp:
+      ansible_host: webapp.example.com
+benchmarkers:
+  hosts:
+    benchmarker:      
+      ansible_host: benchmarker.example.com

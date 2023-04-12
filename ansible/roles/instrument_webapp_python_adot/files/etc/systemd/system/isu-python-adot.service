@@ -1,0 +1,17 @@
+# This file is based on ADOT Instrumented apps
+[Unit]
+Description=isu-python
+After=syslog.target
+
+[Service]
+WorkingDirectory=/home/isucon/private_isu/webapp/python
+EnvironmentFile=/home/isucon/env.sh
+PIDFile=/home/isucon/private_isu/webapp/python/server.pid
+
+User=isucon
+Group=isucon
+ExecStart=/home/isucon/private_isu/webapp/python/venv/bin/gunicorn -c gunicorn.conf.py
+ExecStop=/bin/kill -s QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target

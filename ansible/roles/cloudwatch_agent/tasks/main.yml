@@ -1,0 +1,33 @@
+# Installing and running the CloudWatch agent on your servers - Amazon CloudWatch
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-commandline-fleet.html
+- name: retrive binary
+  become: true
+  become_user: isucon
+  ansible.builtin.get_url:
+    url: https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+    dest: /home/isucon/.cache/amazon-cloudwatch-agent.deb
+
+- name: Install a .deb package
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    deb: /home/isucon/.cache/amazon-cloudwatch-agent.deb
+
+- name: copy config.json
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    src: opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: systemd start, enable amazon-cloudwatch-agent
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: amazon-cloudwatch-agent
+    state: started
+    enabled: yes
+    daemon_reload: yes

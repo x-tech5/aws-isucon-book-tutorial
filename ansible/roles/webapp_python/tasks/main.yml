@@ -1,0 +1,64 @@
+- name: checkout
+  become: true
+  become_user: isucon
+  ansible.builtin.git:
+    repo: 'https://github.com/methane/pixiv-isucon2016-python'
+    dest: /home/isucon/private_isu/webapp/python
+    update: no
+
+- name: install dependencies
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+      - python3.10-venv
+      - python3.10-dev
+      - default-libmysqlclient-dev
+      - build-essential
+
+- name: setup venv
+  become: true
+  become_user: isucon
+  ansible.builtin.command: python3 -m venv venv
+  args:
+    chdir: /home/isucon/private_isu/webapp/python
+    creates: /home/isucon/private_isu/webapp/python/venv
+
+- name: install requirements
+  become: true
+  become_user: isucon
+  ansible.builtin.pip:
+    requirements: /home/isucon/private_isu/webapp/python/requirements.freeze
+    virtualenv: /home/isucon/private_isu/webapp/python/venv
+
+- name: install gunicorn
+  become: true
+  become_user: isucon
+  ansible.builtin.pip:
+    name: gunicorn==20.1.0
+    virtualenv: /home/isucon/private_isu/webapp/python/venv
+
+- name: put systemd unit file
+  become: true
+  become_user: root
+  ansible.builtin.command: cp /home/isucon/private_isu/webapp/python/isu-python.service /etc/systemd/system/isu-python.service
+  args:
+    creates: /etc/systemd/system/isu-python.service
+
+- name: systemd stop, disable isu-ruby
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: isu-ruby
+    state: stopped
+    enabled: no
+
+- name: systemd start, enable isu-python
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: isu-python
+    state: started
+    enabled: yes
+    daemon_reload: yes

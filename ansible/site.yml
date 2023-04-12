@@ -1,0 +1,10 @@
+- hosts: webapps
+  roles:
+  - name: webapp_python
+    tags: webapp_python
+  - name: cloudwatch_agent
+    tags: cloudwatch_agent
+  - name: adot_collector
+    tags: adot_collector
+  - name: instrument_webapp_python_adot
+    tags: instrument_webapp_python_adot
